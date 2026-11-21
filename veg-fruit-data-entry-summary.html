@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蔬菜、瓜果生产情况多表单系统 (离线优化版)</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 工具类 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: #f8f9fa;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #bd2130;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.15s ease-in-out;
+        }
+        
+        .form-control:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        /* 标签页样式 */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            color: #495057;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .tab-btn.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 网格系统 */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 10px;
+            min-width: 250px;
+        }
+        
+        /* 通知样式 */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* 工具类 */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        .d-none { display: none !important; }
+        .d-flex { display: flex !important; }
+        .flex-column { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .gap-10 { gap: 10px; }
+        .gap-20 { gap: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+        .mb-10 { margin-bottom: 10px; }
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .p-20 { padding: 20px; }
+        
+        /* 输入框样式 */
+        .number-input {
+            text-align: right;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        .number-input:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        /* 滚动条样式 */
+        .scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-success { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-danger { background-color: #dc3545; }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .row {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 应用标题 -->
+        <header class="card mb-20">
+            <div class="card-body d-flex justify-between align-center">
+                <h1 style="font-size: 24px; font-weight: 600;">乌兰木伦镇蔬菜、瓜果生产采集系统</h1>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="entry">数据录入</button>
+                    <button class="tab-btn" data-tab="summary">汇总历史</button>
+                    <button class="tab-btn" data-tab="settings">参数设定</button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 通知区域 -->
+        <div id="notification" class="alert d-none"></div>
+        
+        <!-- 数据录入表单 -->
+        <div id="tab-entry" class="tab-content active">
+            <div class="card">
+                <div class="card-header d-flex justify-between align-center">
+                    <span>数据录入</span>
+                    <div class="d-flex gap-10">
+                        <button id="btn-clear" class="btn btn-secondary">清空表单</button>
+                        <button id="btn-save" class="btn btn-success">保存此批次</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- 表单元数据 -->
+                    <div class="card mb-20">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="form-label">填表单位</label>
+                                        <select id="input-unit" class="form-control">
+                                            <option value="">请选择填表单位</option>
+                                            <optgroup label="社区居民委员会">
+                                                <option value="滨河路社区居民委员会">滨河路社区居民委员会</option>
+                                                <option value="上湾社区居民委员会">上湾社区居民委员会</option>
+                                                <option value="补连塔社区居民委员会">补连塔社区居民委员会</option>
+                                                <option value="乌兰木伦社区居民委员会">乌兰木伦社区居民委员会</option>
+                                            </optgroup>
+                                            <optgroup label="村委会">
+                                                <option value="上湾村村民委员会">上湾村村民委员会</option>
+                                                <option value="补连塔拉村村民委员会">补连塔拉村村民委员会</option>
+                                                <option value="苏勒德霍洛村村民委员会">苏勒德霍洛村村民委员会</option>
+                                                <option value="乌兰木伦村村民委员会">乌兰木伦村村民委员会</option>
+                                                <option value="查干苏村村民委员会">查干苏村村民委员会</option>
+                                                <option value="花亥图村村民委员会">花亥图村村民委员会</option>
+                                                <option value="木都希里村村民委员会">木都希里村村民委员会</option>
+                                                <option value="折家梁村村民委员会">折家梁村村民委员会</option>
+                                                <option value="石灰沟村村民委员会">石灰沟村村民委员会</option>
+                                                <option value="布连海子村村民委员会">布连海子村村民委员会</option>
+                                                <option value="格丑庙村村民委员会">格丑庙村村民委员会</option>
+                                                <option value="布尔台格村村民委员会">布尔台格村村民委员会</option>
+                                                <option value="明安木独村村民委员会">明安木独村村民委员会</option>
+                                                <option value="巴日图塔村村民委员会">巴日图塔村村民委员会</option>
+                                                <option value="哈沙图村村民委员会">哈沙图村村民委员会</option>
+                                                <option value="曼斋庙村村民委员会">曼斋庙村村民委员会</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="form-label">种植户姓名</label>
+                                        <input type="text" id="input-farmer" class="form-control" placeholder="请输入种植户姓名">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="form-label">填表日期</label>
+                                        <input type="date" id="input-date" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="meta-info" class="alert alert-info d-none"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据表格 -->
+                    <div class="scrollable">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="30%">指标名称</th>
+                                    <th width="10%">代码</th>
+                                    <th width="30%">播种面积 (亩)</th>
+                                    <th width="30%">产量 (吨)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body">
+                                <!-- 数据行将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 汇总历史 -->
+        <div id="tab-summary" class="tab-content">
+            <div class="card mb-20">
+                <div class="card-header d-flex justify-between align-center">
+                    <span>历史录入批次</span>
+                    <div class="d-flex gap-10">
+                        <button id="btn-restore" class="btn btn-secondary">恢复备份</button>
+                        <button id="btn-export" class="btn btn-success">导出数据(JSON)</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="history-list" class="scrollable" style="max-height: 300px;">
+                        <!-- 历史记录将通过JavaScript动态生成 -->
+                        <div class="text-center p-20">暂无历史记录</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-20">
+                <div class="col">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted mb-10">历史批次数量</div>
+                            <div id="stat-count" class="text-primary" style="font-size: 24px; font-weight: bold;">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted mb-10">累计总播种面积 (亩)</div>
+                            <div id="stat-area" class="text-success" style="font-size: 24px; font-weight: bold;">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <div class="text-muted mb-10">累计总产量 (吨)</div>
+                            <div id="stat-yield" class="text-warning" style="font-size: 24px; font-weight: bold;">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header d-flex justify-between align-center">
+                    <span>所有批次累计汇总清单</span>
+                    <button id="btn-export-csv" class="btn btn-primary">导出CSV</button>
+                </div>
+                <div class="card-body">
+                    <div class="scrollable">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>代码</th>
+                                    <th>名称</th>
+                                    <th>累计播种面积</th>
+                                    <th>累计产量</th>
+                                    <th>综合单产</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-table-body">
+                                <!-- 汇总数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 参数设定 -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    单产参数设定
+                </div>
+                <div class="card-body">
+                    <div class="scrollable">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="25%">指标名称</th>
+                                    <th width="10%">代码</th>
+                                    <th width="15%">当前录入单产</th>
+                                    <th width="15%">下限 (Min)</th>
+                                    <th width="15%">平均 (Avg)</th>
+                                    <th width="15%">上限 (Max)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="settings-table-body">
+                                <!-- 参数设置行将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="text-center mt-20 text-muted" style="font-size: 12px;">
+            <p>&copy; 2025 乌兰木伦镇A412数据采集系统---BSD</p>
+            <p id="data-stats">数据备份: 0 批次 | 0 个参数</p>
+        </footer>
+    </div>
+    
+    <!-- 确认模态框 -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">确认操作</div>
+            <div class="modal-body">
+                <p id="modal-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-cancel" class="btn btn-secondary">取消</button>
+                <button id="modal-confirm" class="btn btn-danger">确认</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 数据备份恢复模态框 -->
+    <div id="backup-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">恢复备份数据</div>
+            <div class="modal-body">
+                <p>确定要从备份恢复数据吗？当前数据将被覆盖。</p>
+            </div>
+            <div class="modal-footer">
+                <button id="backup-cancel" class="btn btn-secondary">取消</button>
+                <button id="backup-confirm" class="btn btn-primary">恢复备份</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ==================== 常量定义 ====================
+        const LOCAL_STORAGE_KEYS = {
+            FORM_DATA: 'agriFormData',
+            FORM_META: 'agriFormMeta',
+            SAVED_ENTRIES: 'agriSavedEntries',
+            YIELD_PARAMS: 'agriFormYieldParams',
+            DATA_BACKUP: 'agriDataBackup'
+        };
+        
+        const MAX_INPUT_VALUE = {
+            AREA: 999999,
+            YIELD: 9999999,
+            DECIMAL_PLACES: 2
+        };
+        
+        // 数据结构
+        const DATA_STRUCTURE = [
+            { code: '01', name: '一、蔬菜及食用菌', type: 'group', children: [
+                { code: '02', name: '(一) 叶菜类', type: 'group', children: [
+                    { code: '03', name: '其中：芹菜', type: 'item' },
+                    { code: '04', name: '油菜', type: 'item' },
+                    { code: '05', name: '菠菜', type: 'item' }
+                ]},
+                { code: '06', name: '(二) 白菜类', type: 'group', children: [
+                    { code: '07', name: '其中：大白菜', type: 'item' }
+                ]},
+                { code: '08', name: '(三) 甘蓝类', type: 'group', children: [
+                    { code: '09', name: '其中：卷心菜 (结球甘蓝)', type: 'item' }
+                ]},
+                { code: '10', name: '(四) 根茎类', type: 'group', children: [
+                    { code: '11', name: '其中：白萝卜', type: 'item' },
+                    { code: '12', name: '胡萝卜', type: 'item' },
+                    { code: '13', name: '生姜', type: 'item' },
+                    { code: '14', name: '榨菜头', type: 'item' }
+                ]},
+                { code: '15', name: '(五) 瓜菜类', type: 'group', children: [
+                    { code: '16', name: '其中：黄瓜', type: 'item' },
+                    { code: '17', name: '南瓜', type: 'item' },
+                    { code: '18', name: '冬瓜', type: 'item' }
+                ]},
+                { code: '19', name: '(六) 豆类', type: 'group', children: [
+                    { code: '20', name: '其中：豇豆', type: 'item' },
+                    { code: '21', name: '四季豆', type: 'item' }
+                ]},
+                { code: '22', name: '(七) 茄果类', type: 'group', children: [
+                    { code: '23', name: '其中：茄子', type: 'item' },
+                    { code: '24', name: '辣椒', type: 'item' },
+                    { code: '25', name: '西红柿', type: 'item' }
+                ]},
+                { code: '32', name: '(十一) 食用菌', type: 'group', children: [
+                   { code: '33', name: '1. 干品', type: 'group', children: [
+                       { code: '34', name: '其中：香菇', type: 'item' },
+                       { code: '35', name: '黑木耳', type: 'item' }
+                   ]},
+                   { code: '36', name: '2. 鲜品', type: 'group', children: [
+                       { code: '37', name: '其中：蘑菇', type: 'item' }
+                   ]}
+                ]}
+            ]},
+            { code: '38', name: '二、瓜果类', type: 'group', children: [
+                { code: '39', name: '其中：西瓜', type: 'item' },
+                { code: '40', name: '香瓜 (甜瓜)', type: 'item' },
+                { code: '41', name: '草莓', type: 'item' }
+            ]}
+        ];
+        
+        // ==================== 全局状态 ====================
+        let appState = {
+            currentInputData: {},
+            currentFormMeta: {},
+            savedEntries: [],
+            yieldParams: {},
+            currentTab: 'entry',
+            validationErrors: {},
+            pendingAction: null
+        };
+        
+        // ==================== 工具函数 ====================
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `alert alert-${type}`;
+            notification.classList.remove('d-none');
+            
+            setTimeout(() => {
+                notification.classList.add('d-none');
+            }, 3000);
+        }
+        
+        function formatNumber(value, decimals = 2) {
+            if (value === null || value === undefined || value === '' || isNaN(value)) return '-';
+            const num = parseFloat(value);
+            if (isNaN(num)) return '-';
+            if (num === 0) return '0';
+            return num.toFixed(decimals);
+        }
+        
+        function formatNumberInput(value, field) {
+            if (value === '' || value === null || value === undefined) return '';
+            
+            let strValue = String(value);
+            
+            // 限制小数位数
+            const decimalMatch = strValue.match(/\.(\d+)/);
+            if (decimalMatch && decimalMatch[1].length > MAX_INPUT_VALUE.DECIMAL_PLACES) {
+                const numValue = parseFloat(strValue);
+                if (!isNaN(numValue)) {
+                    strValue = numValue.toFixed(MAX_INPUT_VALUE.DECIMAL_PLACES);
+                }
+            }
+            
+            // 检查最大值限制
+            const numValue = parseFloat(strValue);
+            if (!isNaN(numValue)) {
+                const maxValue = field === 'area' ? MAX_INPUT_VALUE.AREA : MAX_INPUT_VALUE.YIELD;
+                if (numValue > maxValue) {
+                    strValue = String(maxValue);
+                }
+                if (numValue < 0) {
+                    strValue = '0';
+                }
+            }
+            
+            return strValue;
+        }
+        
+        function showConfirmModal(message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            const messageEl = document.getElementById('modal-message');
+            const confirmBtn = document.getElementById('modal-confirm');
+            const cancelBtn = document.getElementById('modal-cancel');
+            
+            messageEl.textContent = message;
+            modal.classList.add('show');
+            
+            const closeModal = () => {
+                modal.classList.remove('show');
+                confirmBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+            
+            confirmBtn.onclick = () => {
+                onConfirm();
+                closeModal();
+            };
+            
+            cancelBtn.onclick = closeModal;
+        }
+        
+        function showBackupModal(onConfirm) {
+            const modal = document.getElementById('backup-modal');
+            const confirmBtn = document.getElementById('backup-confirm');
+            const cancelBtn = document.getElementById('backup-cancel');
+            
+            modal.classList.add('show');
+            
+            const closeModal = () => {
+                modal.classList.remove('show');
+                confirmBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+            
+            confirmBtn.onclick = () => {
+                onConfirm();
+                closeModal();
+            };
+            
+            cancelBtn.onclick = closeModal;
+        }
+        
+        // ==================== 数据管理 ====================
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.FORM_DATA, JSON.stringify(appState.currentInputData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.FORM_META, JSON.stringify(appState.currentFormMeta));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.SAVED_ENTRIES, JSON.stringify(appState.savedEntries));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.YIELD_PARAMS, JSON.stringify(appState.yieldParams));
+                
+                // 创建备份
+                const backup = {
+                    savedEntries: appState.savedEntries,
+                    yieldParams: appState.yieldParams,
+                    timestamp: Date.now(),
+                    version: '2.2'
+                };
+                localStorage.setItem(LOCAL_STORAGE_KEYS.DATA_BACKUP, JSON.stringify(backup));
+                
+                updateDataStats();
+            } catch (error) {
+                console.error('保存数据失败:', error);
+                showNotification('保存数据失败', 'danger');
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const formData = localStorage.getItem(LOCAL_STORAGE_KEYS.FORM_DATA);
+                const formMeta = localStorage.getItem(LOCAL_STORAGE_KEYS.FORM_META);
+                const savedEntries = localStorage.getItem(LOCAL_STORAGE_KEYS.SAVED_ENTRIES);
+                const yieldParams = localStorage.getItem(LOCAL_STORAGE_KEYS.YIELD_PARAMS);
+                
+                if (formData) appState.currentInputData = JSON.parse(formData);
+                if (formMeta) appState.currentFormMeta = JSON.parse(formMeta);
+                if (savedEntries) appState.savedEntries = JSON.parse(savedEntries);
+                if (yieldParams) {
+                    appState.yieldParams = JSON.parse(yieldParams);
+                } else {
+                    // 初始化默认参数
+                    initializeDefaultParams();
+                }
+                
+                updateDataStats();
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                // 初始化默认参数
+                initializeDefaultParams();
+            }
+        }
+        
+        function initializeDefaultParams() {
+            // 扁平化数据结构以获取所有项目
+            function flatten(items, result = []) {
+                items.forEach(item => {
+                    if (item.type === 'item') {
+                        result.push(item);
+                    }
+                    if (item.children) {
+                        flatten(item.children, result);
+                    }
+                });
+                return result;
+            }
+            
+            const items = flatten(DATA_STRUCTURE);
+            appState.yieldParams = {};
+            items.forEach(item => {
+                appState.yieldParams[item.code] = { min: 0, max: 10, avg: 5 };
+            });
+        }
+        
+        function updateDataStats() {
+            const statsEl = document.getElementById('data-stats');
+            statsEl.textContent = `数据备份: ${appState.savedEntries.length} 批次 | ${Object.keys(appState.yieldParams).length} 个参数`;
+        }
+        
+        function restoreFromBackup() {
+            try {
+                const backup = localStorage.getItem(LOCAL_STORAGE_KEYS.DATA_BACKUP);
+                if (backup) {
+                    const parsed = JSON.parse(backup);
+                    appState.savedEntries = parsed.savedEntries || [];
+                    appState.yieldParams = parsed.yieldParams || {};
+                    saveToLocalStorage();
+                    showNotification('数据已从备份恢复', 'info');
+                    refreshAllViews();
+                } else {
+                    showNotification('未找到备份数据', 'warning');
+                }
+            } catch (error) {
+                console.error('恢复备份失败:', error);
+                showNotification('恢复备份失败', 'danger');
+            }
+        }
+        
+        // ==================== 数据计算 ====================
+        function calculateTreeTotals(structure, inputData) {
+            const totals = {};
+            
+            function process(node) {
+                if (node.type === 'item') {
+                    const val = inputData[node.code] || { area: 0, yield: 0 };
+                    const area = typeof val.area === 'string' ? (parseFloat(val.area) || 0) : val.area;
+                    const yld = typeof val.yield === 'string' ? (parseFloat(val.yield) || 0) : val.yield;
+                    
+                    const res = { 
+                        area, 
+                        yield: yld, 
+                        yieldPerMu: area > 0 ? yld / area : 0
+                    };
+                    totals[node.code] = res;
+                    return res;
+                }
+                
+                let sumA = 0, sumY = 0;
+                if (node.children) {
+                    node.children.forEach(child => {
+                        const t = process(child);
+                        sumA += t.area; 
+                        sumY += t.yield;
+                    });
+                }
+                const res = { 
+                    area: sumA, 
+                    yield: sumY, 
+                    yieldPerMu: sumA > 0 ? sumY / sumA : 0 
+                };
+                totals[node.code] = res;
+                return res;
+            }
+            
+            structure.forEach(process);
+            return totals;
+        }
+        
+        function calculateGrandTotal() {
+            const grandTotals = {};
+            
+            appState.savedEntries.forEach(entry => {
+                const entryTotals = calculateTreeTotals(DATA_STRUCTURE, entry.data);
+                Object.keys(entryTotals).forEach(code => {
+                    if (!grandTotals[code]) {
+                        grandTotals[code] = { area: 0, yield: 0, yieldPerMu: 0 };
+                    }
+                    grandTotals[code].area += entryTotals[code].area;
+                    grandTotals[code].yield += entryTotals[code].yield;
+                });
+            });
+            
+            Object.keys(grandTotals).forEach(code => {
+                const item = grandTotals[code];
+                item.yieldPerMu = item.area > 0 ? item.yield / item.area : 0;
+            });
+            
+            return grandTotals;
+        }
+        
+        // ==================== 视图渲染 ====================
+        function refreshAllViews() {
+            renderDataEntryTable();
+            renderHistoryList();
+            renderSummaryTable();
+            renderSettingsTable();
+            updateMetaInfo();
+            updateStatistics();
+        }
+        
+        function renderDataEntryTable() {
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+            
+            // 计算当前输入数据的汇总
+            const currentTotals = calculateTreeTotals(DATA_STRUCTURE, appState.currentInputData);
+            
+            function renderNode(node, level = 0) {
+                const row = document.createElement('tr');
+                
+                // 设置缩进
+                const indent = level * 20;
+                
+                // 名称单元格
+                const nameCell = document.createElement('td');
+                nameCell.style.paddingLeft = `${indent}px`;
+                
+                if (node.type === 'group') {
+                    nameCell.innerHTML = `<strong>${node.name}</strong>`;
+                    row.style.backgroundColor = '#f8f9fa';
+                    row.style.fontWeight = '600';
+                } else {
+                    nameCell.textContent = node.name;
+                }
+                row.appendChild(nameCell);
+                
+                // 代码单元格
+                const codeCell = document.createElement('td');
+                codeCell.textContent = node.code;
+                row.appendChild(codeCell);
+                
+                // 面积单元格
+                const areaCell = document.createElement('td');
+                areaCell.style.textAlign = 'right';
+                
+                if (node.type === 'group') {
+                    // 对于分组，显示计算出的总面积
+                    const total = currentTotals[node.code] || { area: 0, yield: 0 };
+                    areaCell.textContent = formatNumber(total.area);
+                    areaCell.style.fontWeight = '600';
+                } else {
+                    // 对于子项，显示输入框
+                    const currentData = appState.currentInputData[node.code] || { area: '', yield: '' };
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'number-input';
+                    input.value = currentData.area || '';
+                    input.min = '0';
+                    input.step = '0.01';
+                    input.placeholder = '0';
+                    
+                    // 添加输入事件
+                    input.addEventListener('input', (e) => {
+                        const value = formatNumberInput(e.target.value, 'area');
+                        input.value = value;
+                        
+                        if (!appState.currentInputData[node.code]) {
+                            appState.currentInputData[node.code] = { area: '', yield: '' };
+                        }
+                        appState.currentInputData[node.code].area = value;
+                        
+                        // 如果输入面积且大于0，自动计算产量
+                        if (value && parseFloat(value) > 0) {
+                            // 使用参数设定中的平均单产来计算产量
+                            const avg = appState.yieldParams[node.code]?.avg || 5;
+                            const yieldValue = (parseFloat(value) * avg).toFixed(2);
+                            appState.currentInputData[node.code].yield = yieldValue;
+                            
+                            // 更新对应的产量输入框
+                            const yieldInput = row.querySelector('input[data-field="yield"]');
+                            if (yieldInput) {
+                                yieldInput.value = yieldValue;
+                            }
+                        } else if (value === '') {
+                            appState.currentInputData[node.code].yield = '';
+                            const yieldInput = row.querySelector('input[data-field="yield"]');
+                            if (yieldInput) {
+                                yieldInput.value = '';
+                            }
+                        }
+                        
+                        saveToLocalStorage();
+                        // 重新计算并更新表格中的分组汇总
+                        updateGroupTotals();
+                    });
+                    
+                    input.addEventListener('wheel', (e) => e.target.blur());
+                    areaCell.appendChild(input);
+                }
+                row.appendChild(areaCell);
+                
+                // 产量单元格
+                const yieldCell = document.createElement('td');
+                yieldCell.style.textAlign = 'right';
+                
+                if (node.type === 'group') {
+                    // 对于分组，显示计算出的总产量
+                    const total = currentTotals[node.code] || { area: 0, yield: 0 };
+                    yieldCell.textContent = formatNumber(total.yield);
+                    yieldCell.style.fontWeight = '600';
+                } else {
+                    // 对于子项，显示输入框
+                    const currentData = appState.currentInputData[node.code] || { area: '', yield: '' };
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'number-input';
+                    input.setAttribute('data-field', 'yield');
+                    input.value = currentData.yield || '';
+                    input.min = '0';
+                    input.step = '0.01';
+                    input.placeholder = '0';
+                    
+                    input.addEventListener('input', (e) => {
+                        const value = formatNumberInput(e.target.value, 'yield');
+                        input.value = value;
+                        
+                        if (!appState.currentInputData[node.code]) {
+                            appState.currentInputData[node.code] = { area: '', yield: '' };
+                        }
+                        appState.currentInputData[node.code].yield = value;
+                        saveToLocalStorage();
+                        // 重新计算并更新表格中的分组汇总
+                        updateGroupTotals();
+                    });
+                    
+                    input.addEventListener('wheel', (e) => e.target.blur());
+                    yieldCell.appendChild(input);
+                }
+                row.appendChild(yieldCell);
+                
+                tbody.appendChild(row);
+                
+                // 递归渲染子节点
+                if (node.children) {
+                    node.children.forEach(child => {
+                        renderNode(child, level + 1);
+                    });
+                }
+            }
+            
+            DATA_STRUCTURE.forEach(node => renderNode(node));
+        }
+        
+        function updateGroupTotals() {
+            // 重新计算当前数据的总和
+            const currentTotals = calculateTreeTotals(DATA_STRUCTURE, appState.currentInputData);
+            
+            // 更新表格中所有分组行的数据
+            const rows = document.querySelectorAll('#data-table-body tr');
+            rows.forEach(row => {
+                const codeCell = row.querySelector('td:nth-child(2)');
+                if (codeCell) {
+                    const code = codeCell.textContent;
+                    const node = findNodeByCode(code);
+                    if (node && node.type === 'group') {
+                        const total = currentTotals[code] || { area: 0, yield: 0 };
+                        const areaCell = row.querySelector('td:nth-child(3)');
+                        const yieldCell = row.querySelector('td:nth-child(4)');
+                        
+                        if (areaCell && yieldCell) {
+                            areaCell.textContent = formatNumber(total.area);
+                            yieldCell.textContent = formatNumber(total.yield);
+                        }
+                    }
+                }
+            });
+        }
+        
+        function findNodeByCode(code) {
+            function findInNodes(nodes) {
+                for (const node of nodes) {
+                    if (node.code === code) return node;
+                    if (node.children) {
+                        const found = findInNodes(node.children);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+            return findInNodes(DATA_STRUCTURE);
+        }
+        
+        function renderHistoryList() {
+            const historyList = document.getElementById('history-list');
+            
+            if (appState.savedEntries.length === 0) {
+                historyList.innerHTML = '<div class="text-center p-20">暂无历史记录</div>';
+                return;
+            }
+            
+            let html = '';
+            appState.savedEntries.slice().reverse().forEach(entry => {
+                html += `
+                    <div class="card mb-10">
+                        <div class="card-body">
+                            <div class="d-flex justify-between align-center mb-10">
+                                <div>
+                                    <strong>ID: ${entry.id.toString().slice(-6)}</strong>
+                                    <span class="text-muted" style="margin-left: 10px;">${entry.date}</span>
+                                </div>
+                                <button class="btn btn-danger btn-sm" onclick="deleteEntry(${entry.id})">删除</button>
+                            </div>
+                            ${entry.meta ? `
+                                <div class="mb-10">
+                                    <div><small>单位: ${entry.meta.unit || '-'}</small></div>
+                                    <div><small>农户: ${entry.meta.farmerName || '-'}</small></div>
+                                    <div><small>填表: ${entry.meta.date || '-'}</small></div>
+                                </div>
+                            ` : ''}
+                            <div class="d-flex gap-20">
+                                <div><small>面积: <strong class="text-success">${formatNumber(entry.summary.totalArea, 1)}</strong></small></div>
+                                <div><small>产量: <strong class="text-warning">${formatNumber(entry.summary.totalYield, 1)}</strong></small></div>
+                            </div>
+                            <button class="btn btn-primary btn-sm mt-10" onclick="loadEntry(${entry.id})" style="width: 100%;">加载此批次</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = html;
+        }
+        
+        function renderSummaryTable() {
+            const tbody = document.getElementById('summary-table-body');
+            const grandTotals = calculateGrandTotal();
+            
+            // 扁平化数据结构
+            function flatten(items, result = []) {
+                items.forEach(item => {
+                    result.push(item);
+                    if (item.children) {
+                        flatten(item.children, result);
+                    }
+                });
+                return result;
+            }
+            
+            const flatData = flatten(DATA_STRUCTURE);
+            
+            let html = '';
+            flatData.forEach(item => {
+                const data = grandTotals[item.code] || { area: 0, yield: 0, yieldPerMu: 0 };
+                const rowClass = item.type === 'group' ? 'font-weight-bold' : '';
+                
+                html += `
+                    <tr class="${rowClass}">
+                        <td>${item.code}</td>
+                        <td>${item.name}</td>
+                        <td class="text-right">${formatNumber(data.area)}</td>
+                        <td class="text-right">${formatNumber(data.yield)}</td>
+                        <td class="text-right">${formatNumber(data.yieldPerMu)}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        function renderSettingsTable() {
+            const tbody = document.getElementById('settings-table-body');
+            
+            // 扁平化数据结构以获取所有项目
+            function flatten(items, result = []) {
+                items.forEach(item => {
+                    if (item.type === 'item') {
+                        result.push(item);
+                    }
+                    if (item.children) {
+                        flatten(item.children, result);
+                    }
+                });
+                return result;
+            }
+            
+            const items = flatten(DATA_STRUCTURE);
+            
+            // 计算当前录入数据的单产
+            const currentTotals = calculateTreeTotals(DATA_STRUCTURE, appState.currentInputData);
+            
+            let html = '';
+            items.forEach(item => {
+                const params = appState.yieldParams[item.code] || { min: 0, max: 10, avg: 5 };
+                const currentYield = currentTotals[item.code]?.yieldPerMu || 0;
+                
+                html += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td class="text-right ${currentYield > 0 ? 'text-primary' : 'text-muted'}">
+                            ${currentYield > 0 ? formatNumber(currentYield) : '-'}
+                        </td>
+                        <td class="text-right">
+                            <input type="number" step="0.1" min="0" class="form-control text-right" 
+                                   value="${params.min}" 
+                                   onchange="updateParam('${item.code}', 'min', this.value)">
+                        </td>
+                        <td class="text-right">
+                            <input type="number" step="0.1" min="0" class="form-control text-right" 
+                                   value="${params.avg}" 
+                                   onchange="updateParam('${item.code}', 'avg', this.value)">
+                        </td>
+                        <td class="text-right">
+                            <input type="number" step="0.1" min="0" class="form-control text-right" 
+                                   value="${params.max}" 
+                                   onchange="updateParam('${item.code}', 'max', this.value)">
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        function updateMetaInfo() {
+            const metaInfo = document.getElementById('meta-info');
+            const unit = document.getElementById('input-unit').value;
+            const farmer = document.getElementById('input-farmer').value;
+            const date = document.getElementById('input-date').value;
+            
+            if (unit || farmer || date) {
+                let info = '当前填写信息: ';
+                if (unit) info += `单位: ${unit} `;
+                if (farmer) info += `姓名: ${farmer} `;
+                if (date) info += `日期: ${date}`;
+                metaInfo.textContent = info;
+                metaInfo.classList.remove('d-none');
+            } else {
+                metaInfo.classList.add('d-none');
+            }
+        }
+        
+        function updateStatistics() {
+            const grandTotals = calculateGrandTotal();
+            const totalArea = (grandTotals['01']?.area || 0) + (grandTotals['38']?.area || 0);
+            const totalYield = (grandTotals['01']?.yield || 0) + (grandTotals['38']?.yield || 0);
+            
+            document.getElementById('stat-count').textContent = appState.savedEntries.length;
+            document.getElementById('stat-area').textContent = formatNumber(totalArea, 1);
+            document.getElementById('stat-yield').textContent = formatNumber(totalYield, 1);
+        }
+        
+        // ==================== 事件处理 ====================
+        function updateParam(code, field, value) {
+            if (!appState.yieldParams[code]) {
+                appState.yieldParams[code] = { min: 0, max: 10, avg: 5 };
+            }
+            appState.yieldParams[code][field] = parseFloat(value) || 0;
+            saveToLocalStorage();
+            
+            // 如果修改了平均单产，重新计算当前录入表单中的产量
+            if (field === 'avg') {
+                recalculateYieldsForItem(code);
+            }
+            
+            showNotification('参数已更新', 'success');
+        }
+        
+        function recalculateYieldsForItem(code) {
+            // 重新计算指定作物的产量
+            const currentData = appState.currentInputData[code];
+            if (currentData && currentData.area && parseFloat(currentData.area) > 0) {
+                const avg = appState.yieldParams[code]?.avg || 5;
+                const yieldValue = (parseFloat(currentData.area) * avg).toFixed(2);
+                appState.currentInputData[code].yield = yieldValue;
+                
+                // 更新对应的输入框
+                const rows = document.querySelectorAll('#data-table-body tr');
+                rows.forEach(row => {
+                    const codeCell = row.querySelector('td:nth-child(2)');
+                    if (codeCell && codeCell.textContent === code) {
+                        const yieldInput = row.querySelector('input[data-field="yield"]');
+                        if (yieldInput) {
+                            yieldInput.value = yieldValue;
+                        }
+                    }
+                });
+                
+                saveToLocalStorage();
+                updateGroupTotals();
+            }
+        }
+        
+        function deleteEntry(id) {
+            showConfirmModal('您确定要删除这条历史记录吗？此操作无法撤销。', () => {
+                appState.savedEntries = appState.savedEntries.filter(entry => entry.id !== id);
+                saveToLocalStorage();
+                refreshAllViews();
+                showNotification('记录已删除', 'warning');
+            });
+        }
+        
+        function loadEntry(id) {
+            const entry = appState.savedEntries.find(e => e.id === id);
+            if (entry) {
+                appState.currentInputData = JSON.parse(JSON.stringify(entry.data));
+                appState.currentFormMeta = entry.meta || {};
+                
+                // 更新表单
+                document.getElementById('input-unit').value = appState.currentFormMeta.unit || '';
+                document.getElementById('input-farmer').value = appState.currentFormMeta.farmerName || '';
+                document.getElementById('input-date').value = appState.currentFormMeta.date || '';
+                
+                saveToLocalStorage();
+                refreshAllViews();
+                switchTab('entry');
+                showNotification('历史数据已加载到表单中', 'success');
+            }
+        }
+        
+        function saveEntry() {
+            // 验证表单元数据
+            const unit = document.getElementById('input-unit').value;
+            const farmer = document.getElementById('input-farmer').value;
+            const date = document.getElementById('input-date').value;
+            
+            if (!unit) {
+                showNotification('请选择填表单位', 'warning');
+                return;
+            }
+            
+            if (!farmer) {
+                showNotification('请输入种植户姓名', 'warning');
+                return;
+            }
+            
+            if (!date) {
+                showNotification('请选择填表日期', 'warning');
+                return;
+            }
+            
+            // 验证是否有数据
+            const hasData = Object.values(appState.currentInputData).some(d => 
+                (d.area && parseFloat(d.area) > 0) || (d.yield && parseFloat(d.yield) > 0)
+            );
+            
+            if (!hasData) {
+                showNotification('表单为空，无法保存', 'warning');
+                return;
+            }
+            
+            // 保存表单元数据
+            appState.currentFormMeta = {
+                unit,
+                farmerName: farmer,
+                date
+            };
+            
+            // 计算汇总
+            const totals = calculateTreeTotals(DATA_STRUCTURE, appState.currentInputData);
+            const totalArea = (totals['01']?.area || 0) + (totals['38']?.area || 0);
+            const totalYield = (totals['01']?.yield || 0) + (totals['38']?.yield || 0);
+            
+            // 创建记录
+            const entry = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                data: JSON.parse(JSON.stringify(appState.currentInputData)),
+                meta: JSON.parse(JSON.stringify(appState.currentFormMeta)),
+                summary: {
+                    totalArea,
+                    totalYield,
+                    itemCount: Object.keys(appState.currentInputData).length
+                }
+            };
+            
+            appState.savedEntries.push(entry);
+            
+            // 清空当前表单数据
+            appState.currentInputData = {};
+            document.getElementById('input-unit').value = '';
+            document.getElementById('input-farmer').value = '';
+            document.getElementById('input-date').value = '';
+            
+            saveToLocalStorage();
+            refreshAllViews();
+            showNotification('保存成功并清空数据表单', 'success');
+        }
+        
+        function clearForm() {
+            if (Object.keys(appState.currentInputData).length > 0 || 
+                Object.keys(appState.currentFormMeta).length > 0) {
+                showConfirmModal('确定要清空当前表单的所有数据吗？包括填表信息？', () => {
+                    appState.currentInputData = {};
+                    appState.currentFormMeta = {};
+                    document.getElementById('input-unit').value = '';
+                    document.getElementById('input-farmer').value = '';
+                    document.getElementById('input-date').value = '';
+                    
+                    saveToLocalStorage();
+                    refreshAllViews();
+                    showNotification('表单数据已清空', 'info');
+                });
+            } else {
+                showNotification('表单已经是空的', 'info');
+            }
+        }
+        
+        function exportData() {
+            const exportData = {
+                metadata: {
+                    timestamp: new Date().toISOString(),
+                    version: '2.2',
+                    exportDate: new Date().toLocaleString()
+                },
+                savedEntries: appState.savedEntries,
+                yieldParams: appState.yieldParams,
+                structure: DATA_STRUCTURE
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `农业数据_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('数据导出成功', 'success');
+        }
+        
+        function exportCSV() {
+            const grandTotals = calculateGrandTotal();
+            
+            // 扁平化数据结构
+            function flatten(items, result = []) {
+                items.forEach(item => {
+                    result.push(item);
+                    if (item.children) {
+                        flatten(item.children, result);
+                    }
+                });
+                return result;
+            }
+            
+            const flatData = flatten(DATA_STRUCTURE);
+            
+            let csvContent = '代码,名称,类型,累计播种面积(亩),累计产量(吨),综合单产(吨/亩)\n';
+            
+            flatData.forEach(item => {
+                const data = grandTotals[item.code] || { area: 0, yield: 0, yieldPerMu: 0 };
+                const type = item.type === 'group' ? '分类' : '作物';
+                
+                csvContent += `"${item.code}","${item.name}","${type}",${formatNumber(data.area)},${formatNumber(data.yield)},${formatNumber(data.yieldPerMu)}\n`;
+            });
+            
+            // 添加总计行
+            const totalArea = (grandTotals['01']?.area || 0) + (grandTotals['38']?.area || 0);
+            const totalYield = (grandTotals['01']?.yield || 0) + (grandTotals['38']?.yield || 0);
+            const totalYieldPerMu = totalArea > 0 ? totalYield / totalArea : 0;
+            
+            csvContent += `,"总计","",${formatNumber(totalArea)},${formatNumber(totalYield)},${formatNumber(totalYieldPerMu)}\n`;
+            
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `农作物生产累计汇总_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('CSV数据导出成功', 'success');
+        }
+        
+        function switchTab(tabId) {
+            // 更新标签按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新标签内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            appState.currentTab = tabId;
+        }
+        
+        // ==================== 初始化 ====================
+        function initialize() {
+            // 加载数据
+            loadFromLocalStorage();
+            
+            // 设置默认日期
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('input-date').value = today;
+            
+            // 绑定事件
+            document.getElementById('btn-save').addEventListener('click', saveEntry);
+            document.getElementById('btn-clear').addEventListener('click', clearForm);
+            document.getElementById('btn-export').addEventListener('click', exportData);
+            document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+            document.getElementById('btn-restore').addEventListener('click', () => {
+                showBackupModal(restoreFromBackup);
+            });
+            
+            // 绑定标签切换事件
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchTab(btn.dataset.tab);
+                });
+            });
+            
+            // 绑定表单元数据变化事件
+            document.getElementById('input-unit').addEventListener('change', updateMetaInfo);
+            document.getElementById('input-farmer').addEventListener('input', updateMetaInfo);
+            document.getElementById('input-date').addEventListener('change', updateMetaInfo);
+            
+            // 初始渲染
+            refreshAllViews();
+            
+            // 设置定时备份
+            setInterval(saveToLocalStorage, 5 * 60 * 1000); // 每5分钟备份一次
+            
+            console.log('系统初始化完成');
+        }
+        
+        // 暴露全局函数供HTML调用
+        window.deleteEntry = deleteEntry;
+        window.loadEntry = loadEntry;
+        window.updateParam = updateParam;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
